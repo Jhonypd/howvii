@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: API de Pagamentos Imobiliários
+  description: Serviços REST para processamento dos pagamentos de imóveis do trabalho Hands on Work VII.
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000
+    description: Servidor local
+security: []
+tags:
+  - name: Relatórios
+    description: Dados processados em JavaScript para utilização em gráficos.
+paths:
+  /pagamentos/por-imovel:
+    get:
+      tags:
+        - Relatórios
+      summary: Retorna o valor acumulado de pagamentos por imóvel
+      operationId: listarPagamentosPorImovel
+      responses:
+        '200':
+          description: Lista do total de pagamentos de cada imóvel.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PagamentosPorImovel'
+              example:
+                - codigo_imovel: 1001
+                  total_pagamentos: 7200.00
+                - codigo_imovel: 1002
+                  total_pagamentos: 6600.00
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+  /vendas/por-mes-ano:
+    get:
+      tags:
+        - Relatórios
+      summary: Retorna o valor total das vendas por mês e ano
+      operationId: listarVendasPorMesAno
+      responses:
+        '200':
+          description: Lista dos períodos e seus respectivos valores totais.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VendasPorMesAno'
+              example:
+                - mes_ano: 01/2026
+                  total_vendas: 18900.00
+                - mes_ano: 02/2026
+                  total_vendas: 19600.00
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+  /vendas/percentual-por-tipo:
+    get:
+      tags:
+        - Relatórios
+      summary: Retorna o percentual quantitativo de vendas por tipo de imóvel
+      description: O percentual considera a quantidade de registros de venda de cada tipo em relação à quantidade total de vendas.
+      operationId: listarPercentualVendasPorTipo
+      responses:
+        '200':
+          description: Lista dos tipos de imóvel e seus respectivos percentuais quantitativos.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PercentualVendasPorTipo'
+              example:
+                - tipo_imovel: Apartamento
+                  percentual_vendas: 36.67
+                - tipo_imovel: Casa
+                  percentual_vendas: 33.33
+                - tipo_imovel: Sala Comercial
+                  percentual_vendas: 30.00
+        '500':
+          $ref: '#/components/responses/ErroInterno'
+
+components:
+  schemas:
+    PagamentosPorImovel:
+      type: object
+      required:
+        - codigo_imovel
+        - total_pagamentos
+      properties:
+        codigo_imovel:
+          type: integer
+          example: 1001
+        total_pagamentos:
+          type: number
+          format: double
+          example: 7200.00
+
+    VendasPorMesAno:
+      type: object
+      required:
+        - mes_ano
+        - total_vendas
+      properties:
+        mes_ano:
+          type: string
+          pattern: '^(0[1-9]|1[0-2])/\d{4}$'
+          example: 01/2026
+        total_vendas:
+          type: number
+          format: double
+          example: 18900.00
+
+    PercentualVendasPorTipo:
+      type: object
+      required:
+        - tipo_imovel
+        - percentual_vendas
+      properties:
+        tipo_imovel:
+          type: string
+          example: Apartamento
+        percentual_vendas:
+          type: number
+          format: double
+          minimum: 0
+          maximum: 100
+          example: 36.67
+
+    Erro:
+      type: object
+      required:
+        - erro
+      properties:
+        erro:
+          type: string
+          example: Erro interno ao processar os dados.
+
+  responses:
+    ErroInterno:
+      description: Erro interno do servidor.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Erro'
