@@ -1,16 +1,18 @@
 # Hands on Work VII - Serviços imobiliários
 
-Projeto acadêmico desenvolvido com SQL Server e Node.js para consultar dados de pagamentos de imóveis. Nesta primeira etapa, o projeto prepara o banco, a consulta completa e a especificação dos serviços REST que serão implementados na Parte 2.
+Projeto acadêmico desenvolvido com SQL Server e Node.js para consultar e processar dados de pagamentos de imóveis. O projeto prepara o banco, consulta todos os registros e disponibiliza os três relatórios da Parte 2 por meio de uma API REST.
 
 ## Tecnologias
 
 - Microsoft SQL Server
 - SQL Server Management Studio (SSMS)
 - Node.js
+- Express
 - Pacote `mssql`
 - OpenAPI 3.0.3
+- Swagger UI
 
-## Estrutura da Parte 1
+## Estrutura
 
 ```text
 database/
@@ -21,12 +23,46 @@ docs/
   modelo-entidade-relacionamento.md
   openapi.yaml
 src/
-  pagamentos.js
-entrega/
-  README.md
+  app.js
+  server.js
+  cli/
+    consulta.js
+  config/
+    database.js
+  repositories/
+    pagamento-repository.js
+  routes/
+    relatorio-routes.js
+  services/
+    calculos-relatorios.js
+    relatorio-service.js
+test/
+  contract/
+    openapi.test.js
+  fixtures/
+    carga-inicial.js
+  http/
+    app.test.js
+  unit/
+    calculos-relatorios.test.js
+    carga-inicial.test.js
+    camadas.test.js
+integration/
+  sql/
+    relatorios-sql.test.js
 .env.example
 package.json
 ```
+
+### Responsabilidades das pastas
+
+- `src/config`: configuração de infraestrutura e conexão com o banco.
+- `src/repositories`: consultas e acesso aos dados.
+- `src/services`: regras de negócio e cálculos dos relatórios.
+- `src/routes`: definição dos endpoints HTTP.
+- `src/cli`: comandos executados diretamente pelo terminal.
+- `test`: testes isolados, sem dependência do SQL Server.
+- `integration`: testes de integração somente de leitura com o banco real.
 
 ## Modelo de dados
 
@@ -46,13 +82,43 @@ package.json
 npm install
 ```
 
-5. Execute a consulta pelo Node.js:
+5. Para executar apenas a consulta completa pelo Node.js:
 
 ```bash
 npm run consulta
 ```
 
-O banco criado pelo script se chama `how_vii`. A aplicação consulta os dados completos por meio de `JOIN`, sem utilizar `WHERE`, `GROUP BY` ou funções de agregação. Os filtros e agrupamentos serão implementados em JavaScript na Parte 2.
+6. Para iniciar a API:
+
+```bash
+npm start
+```
+
+O Swagger UI estará disponível em `http://localhost:3000/docs`. A especificação OpenAPI também pode ser acessada diretamente em `http://localhost:3000/openapi.yaml`.
+
+## Serviços da Parte 2
+
+- `GET /pagamentos/por-imovel`: soma dos pagamentos por `codigo_imovel`.
+- `GET /vendas/por-mes-ano`: soma das vendas por mês e ano.
+- `GET /vendas/percentual-por-tipo`: percentual quantitativo das vendas por tipo de imóvel.
+
+O banco se chama `how_vii`. A aplicação consulta os dados completos por meio de `JOIN`, sem utilizar `WHERE`, `GROUP BY` ou funções de agregação. O agrupamento e os cálculos são feitos em memória pelo JavaScript com técnicas de programação funcional.
+
+A API reutiliza um único pool de conexões com o SQL Server. Esse pool é encerrado de forma controlada quando o processo recebe `SIGINT` ou `SIGTERM`. O comando `npm run consulta` utiliza um pool próprio e o fecha assim que a consulta termina.
+
+## Testes
+
+Os testes automatizados não acessam nem modificam o banco de dados. Para executá-los:
+
+```bash
+npm test
+```
+
+Quando houver um SQL Server configurado, execute separadamente o teste de integração somente de leitura:
+
+```bash
+npm run test:integracao
+```
 
 ## Requisitos atendidos
 
@@ -61,7 +127,9 @@ O banco criado pelo script se chama `how_vii`. A aplicação consulta os dados c
 - 8 imóveis de 3 tipos, todos com ao menos um pagamento.
 - Consulta com `JOIN` entre todas as tabelas, sem filtros ou agregações.
 - Execução da consulta pelo Node.js.
-- Especificação OpenAPI dos três serviços previstos para a Parte 2.
+- Processamento funcional dos três relatórios em JavaScript.
+- Serviços REST em Express com respostas JSON.
+- Especificação OpenAPI vinculada ao Swagger UI.
 
 ## Entrega
 
