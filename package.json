@@ -3,12 +3,20 @@
   "version": "1.0.0",
   "private": true,
   "description": "",
-  "main": "src/pagamentos.js",
+  "main": "src/server.js",
   "scripts": {
-    "consulta": "node src/pagamentos.js"
+    "consulta": "node src/cli/consulta.js",
+    "start": "node src/server.js",
+    "test": "node --test test/unit/*.test.js test/http/*.test.js test/contract/*.test.js",
+    "test:integracao": "node --test integration/sql/*.test.js"
   },
   "dependencies": {
     "dotenv": "^17.2.2",
-    "mssql": "^12.0.0"
+    "express": "^5.1.0",
+    "mssql": "^12.0.0",
+    "swagger-ui-express": "^5.0.1"
+  },
+  "devDependencies": {
+    "yaml": "^2.9.0"
   }
 }
