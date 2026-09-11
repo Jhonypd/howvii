@@ -1,7 +1,7 @@
 openapi: 3.0.3
 info:
   title: API de Pagamentos Imobiliários
-  description: Serviços REST para processamento dos pagamentos de imóveis do trabalho Hands on Work VII.
+  description: Serviços REST para processamento dos pagamentos de imóveis.
   version: 1.0.0
 servers:
   - url: /
@@ -9,7 +9,7 @@ servers:
 security: []
 tags:
   - name: Relatórios
-    description: Dados processados em JavaScript para utilização em gráficos.
+    description: Dados processados para utilização em gráficos.
 paths:
   /pagamentos/por-imovel:
     get:
@@ -18,21 +18,21 @@ paths:
       summary: Retorna o valor acumulado de pagamentos por imóvel
       operationId: listarPagamentosPorImovel
       responses:
-        '200':
+        "200":
           description: Lista do total de pagamentos de cada imóvel.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PagamentosPorImovel'
+                  $ref: "#/components/schemas/PagamentosPorImovel"
               example:
                 - codigo_imovel: 1001
                   total_pagamentos: 7200.00
                 - codigo_imovel: 1002
                   total_pagamentos: 6600.00
-        '500':
-          $ref: '#/components/responses/ErroInterno'
+        "500":
+          $ref: "#/components/responses/ErroInterno"
 
   /vendas/por-mes-ano:
     get:
@@ -41,21 +41,21 @@ paths:
       summary: Retorna o valor total das vendas por mês e ano
       operationId: listarVendasPorMesAno
       responses:
-        '200':
+        "200":
           description: Lista dos períodos e seus respectivos valores totais.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/VendasPorMesAno'
+                  $ref: "#/components/schemas/VendasPorMesAno"
               example:
                 - mes_ano: 01/2026
                   total_vendas: 18900.00
                 - mes_ano: 02/2026
                   total_vendas: 19600.00
-        '500':
-          $ref: '#/components/responses/ErroInterno'
+        "500":
+          $ref: "#/components/responses/ErroInterno"
 
   /vendas/percentual-por-tipo:
     get:
@@ -65,14 +65,14 @@ paths:
       description: O percentual considera a quantidade de registros de venda de cada tipo em relação à quantidade total de vendas.
       operationId: listarPercentualVendasPorTipo
       responses:
-        '200':
+        "200":
           description: Lista dos tipos de imóvel e seus respectivos percentuais quantitativos.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PercentualVendasPorTipo'
+                  $ref: "#/components/schemas/PercentualVendasPorTipo"
               example:
                 - tipo_imovel: Apartamento
                   percentual_vendas: 36.67
@@ -80,8 +80,8 @@ paths:
                   percentual_vendas: 33.33
                 - tipo_imovel: Sala Comercial
                   percentual_vendas: 30.00
-        '500':
-          $ref: '#/components/responses/ErroInterno'
+        "500":
+          $ref: "#/components/responses/ErroInterno"
 
 components:
   schemas:
@@ -145,4 +145,4 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/Erro'
+            $ref: "#/components/schemas/Erro"
