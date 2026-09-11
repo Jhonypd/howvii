@@ -1,10 +1,12 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { criarAplicacao } = require("../../src/app");
+const { criarAplicacao } = require("../../dist/src/app");
+const { RelatorioController } = require("../../dist/src/controllers/relatorio-controller");
 
 function iniciarServidor(servicoRelatorios) {
-  const servidor = criarAplicacao(servicoRelatorios).listen(0);
+  const relatorioController = new RelatorioController(servicoRelatorios);
+  const servidor = criarAplicacao(relatorioController).listen(0);
   const { port } = servidor.address();
 
   return {

@@ -1,4 +1,11 @@
-function converterParaCentavos(valor) {
+import {
+  Pagamento,
+  PagamentosPorImovel,
+  PercentualVendasPorTipo,
+  VendasPorMesAno,
+} from "../entities/pagamento";
+
+function converterParaCentavos(valor: number | string): number {
   const resultado = /^([+-]?)(\d+)(?:\.(\d+))?$/.exec(String(valor).trim());
 
   if (!resultado) {
@@ -19,7 +26,10 @@ function converterParaCentavos(valor) {
   return sinal * centavos;
 }
 
-function somarCentavosPorChave(registros, obterChave) {
+function somarCentavosPorChave<Chave>(
+  registros: Pagamento[],
+  obterChave: (registro: Pagamento) => Chave,
+): Map<Chave, number> {
   return registros.reduce((totais, registro) => {
     const chave = obterChave(registro);
     const totalAtual = totais.get(chave) || 0;
@@ -31,10 +41,10 @@ function somarCentavosPorChave(registros, obterChave) {
 
     totais.set(chave, novoTotal);
     return totais;
-  }, new Map());
+  }, new Map<Chave, number>());
 }
 
-function listarPagamentosPorImovel(pagamentos) {
+export function listarPagamentosPorImovel(pagamentos: Pagamento[]): PagamentosPorImovel[] {
   const totais = somarCentavosPorChave(
     pagamentos,
     (pagamento) => pagamento.codigo_imovel,
@@ -46,7 +56,7 @@ function listarPagamentosPorImovel(pagamentos) {
   })).sort((a, b) => a.codigo_imovel - b.codigo_imovel);
 }
 
-function extrairPeriodo(dataPagamento) {
+function extrairPeriodo(dataPagamento: Date | string): { ano: number; mes: number } {
   if (dataPagamento instanceof Date && !Number.isNaN(dataPagamento.getTime())) {
     return {
       ano: dataPagamento.getUTCFullYear(),
@@ -63,7 +73,7 @@ function extrairPeriodo(dataPagamento) {
   return { ano: Number(resultado[1]), mes: Number(resultado[2]) };
 }
 
-function listarVendasPorMesAno(pagamentos) {
+export function listarVendasPorMesAno(pagamentos: Pagamento[]): VendasPorMesAno[] {
   const totais = somarCentavosPorChave(pagamentos, (pagamento) => {
     const { ano, mes } = extrairPeriodo(pagamento.data_pagamento);
     return `${ano}-${String(mes).padStart(2, "0")}`;
@@ -82,7 +92,9 @@ function listarVendasPorMesAno(pagamentos) {
     .map(({ mes_ano, total_vendas }) => ({ mes_ano, total_vendas }));
 }
 
-function listarPercentualVendasPorTipo(pagamentos) {
+export function listarPercentualVendasPorTipo(
+  pagamentos: Pagamento[],
+): PercentualVendasPorTipo[] {
   if (pagamentos.length === 0) {
     return [];
   }
@@ -91,16 +103,10 @@ function listarPercentualVendasPorTipo(pagamentos) {
     const tipo = pagamento.tipo_imovel;
     totais.set(tipo, (totais.get(tipo) || 0) + 1);
     return totais;
-  }, new Map());
+  }, new Map<string, number>());
 
   return Array.from(quantidades, ([tipo_imovel, quantidade]) => ({
     tipo_imovel,
     percentual_vendas: Number(((quantidade / pagamentos.length) * 100).toFixed(2)),
   })).sort((a, b) => a.tipo_imovel.localeCompare(b.tipo_imovel, "pt-BR"));
 }
-
-module.exports = {
-  listarPagamentosPorImovel,
-  listarPercentualVendasPorTipo,
-  listarVendasPorMesAno,
-};

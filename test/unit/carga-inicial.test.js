@@ -6,7 +6,7 @@ const {
   listarPagamentosPorImovel,
   listarPercentualVendasPorTipo,
   listarVendasPorMesAno,
-} = require("../../src/services/calculos-relatorios");
+} = require("../../dist/src/services/calculos-relatorios");
 
 test("confere os resultados esperados da carga inicial sem acessar o banco", () => {
   const pagamentosPorImovel = listarPagamentosPorImovel(cargaInicial);

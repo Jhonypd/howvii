@@ -7,6 +7,7 @@ Projeto acadêmico desenvolvido com SQL Server e Node.js para consultar e proces
 - Microsoft SQL Server
 - SQL Server Management Studio (SSMS)
 - Node.js
+- TypeScript
 - Express
 - Pacote `mssql`
 - OpenAPI 3.0.3
@@ -23,19 +24,23 @@ docs/
   modelo-entidade-relacionamento.md
   openapi.yaml
 src/
-  app.js
-  server.js
+  app.ts
+  server.ts
+  controllers/
+    relatorio-controller.ts
   cli/
-    consulta.js
-  config/
-    database.js
+    consulta.ts
+  database/
+    contexto-banco.ts
+  entities/
+    pagamento.ts
   repositories/
-    pagamento-repository.js
+    pagamento-repository.ts
   routes/
-    relatorio-routes.js
+    relatorio-routes.ts
   services/
-    calculos-relatorios.js
-    relatorio-service.js
+    calculos-relatorios.ts
+    relatorio-service.ts
 test/
   contract/
     openapi.test.js
@@ -52,11 +57,14 @@ integration/
     relatorios-sql.test.js
 .env.example
 package.json
+tsconfig.json
 ```
 
 ### Responsabilidades das pastas
 
-- `src/config`: configuração de infraestrutura e conexão com o banco.
+- `src/controllers`: recebe requisições HTTP e devolve respostas JSON.
+- `src/database`: configura e controla a conexão com o banco.
+- `src/entities`: define os formatos das entidades e dos relatórios.
 - `src/repositories`: consultas e acesso aos dados.
 - `src/services`: regras de negócio e cálculos dos relatórios.
 - `src/routes`: definição dos endpoints HTTP.
@@ -88,11 +96,20 @@ npm install
 npm run consulta
 ```
 
-6. Para iniciar a API:
+6. Para verificar os tipos e compilar o projeto:
+
+```bash
+npm run typecheck
+npm run build
+```
+
+7. Para iniciar a API:
 
 ```bash
 npm start
 ```
+
+Durante o desenvolvimento, utilize `npm run dev` para executar diretamente o TypeScript e reiniciar o servidor após alterações.
 
 O Swagger UI estará disponível em `http://localhost:3000/docs`. A especificação OpenAPI também pode ser acessada diretamente em `http://localhost:3000/openapi.yaml`.
 
@@ -133,4 +150,4 @@ npm run test:integracao
 
 ## Entrega
 
-O PDF final da Parte 1 deve ser colocado na pasta `entrega`. Consulte o checklist existente nessa pasta antes de enviar o trabalho. O arquivo `.env` não deve ser incluído na entrega.
+O PDF produzido na Parte 1 deve ser atualizado com o código e os resultados da Parte 2. O arquivo `.env` não deve ser incluído na entrega.

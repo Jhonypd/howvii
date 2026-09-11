@@ -4,14 +4,14 @@ const test = require("node:test");
 const {
   PagamentoRepository,
   consultaPagamentos,
-} = require("../../src/repositories/pagamento-repository");
-const { RelatorioService } = require("../../src/services/relatorio-service");
+} = require("../../dist/src/repositories/pagamento-repository");
+const { RelatorioService } = require("../../dist/src/services/relatorio-service");
 
 test("PagamentoRepository executa a consulta completa usando o pool recebido", async () => {
   const pagamentos = [{ id_venda: "pagamento-1", codigo_imovel: 1001 }];
   let sqlExecutado;
-  const pool = {
-    request() {
+  const contextoBanco = {
+    criarRequisicao() {
       return {
         async query(sql) {
           sqlExecutado = sql;
@@ -20,7 +20,7 @@ test("PagamentoRepository executa a consulta completa usando o pool recebido", a
       };
     },
   };
-  const repository = new PagamentoRepository(pool);
+  const repository = new PagamentoRepository(contextoBanco);
 
   assert.strictEqual(await repository.listarTodos(), pagamentos);
   assert.equal(sqlExecutado, consultaPagamentos);

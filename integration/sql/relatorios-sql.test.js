@@ -1,20 +1,20 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { criarPool } = require("../../src/config/database");
-const { PagamentoRepository } = require("../../src/repositories/pagamento-repository");
+const { ContextoBanco } = require("../../dist/src/database/contexto-banco");
+const { PagamentoRepository } = require("../../dist/src/repositories/pagamento-repository");
 const {
   listarPagamentosPorImovel,
   listarPercentualVendasPorTipo,
   listarVendasPorMesAno,
-} = require("../../src/services/calculos-relatorios");
+} = require("../../dist/src/services/calculos-relatorios");
 
 test("confere os relatórios com uma consulta somente de leitura no SQL Server", async () => {
-  const pool = criarPool();
+  const contextoBanco = new ContextoBanco();
 
   try {
-    await pool.connect();
-    const pagamentos = await new PagamentoRepository(pool).listarTodos();
+    await contextoBanco.conectar();
+    const pagamentos = await new PagamentoRepository(contextoBanco).listarTodos();
     const pagamentosPorImovel = listarPagamentosPorImovel(pagamentos);
 
     assert.equal(pagamentos.length, 30);
@@ -39,6 +39,6 @@ test("confere os relatórios com uma consulta somente de leitura no SQL Server",
       { tipo_imovel: "Sala Comercial", percentual_vendas: 30 },
     ]);
   } finally {
-    await pool.close();
+    await contextoBanco.fechar();
   }
 });

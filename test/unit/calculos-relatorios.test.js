@@ -5,7 +5,7 @@ const {
   listarPagamentosPorImovel,
   listarPercentualVendasPorTipo,
   listarVendasPorMesAno,
-} = require("../../src/services/calculos-relatorios");
+} = require("../../dist/src/services/calculos-relatorios");
 
 const pagamentos = [
   {

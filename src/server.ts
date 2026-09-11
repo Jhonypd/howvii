@@ -1,32 +1,35 @@
-const { criarAplicacao } = require("./app");
-const { criarPool } = require("./config/database");
-const { PagamentoRepository } = require("./repositories/pagamento-repository");
-const { RelatorioService } = require("./services/relatorio-service");
+import { Server } from "node:http";
+import { criarAplicacao } from "./app";
+import { RelatorioController } from "./controllers/relatorio-controller";
+import { ContextoBanco } from "./database/contexto-banco";
+import { PagamentoRepository } from "./repositories/pagamento-repository";
+import { RelatorioService } from "./services/relatorio-service";
 
 const porta = Number(process.env.PORT || 3000);
 
-async function iniciarServidor() {
-  const pool = criarPool();
+export async function iniciarServidor() {
+  const contextoBanco = new ContextoBanco();
 
   try {
-    await pool.connect();
+    await contextoBanco.conectar();
   } catch (erro) {
-    await pool.close();
+    await contextoBanco.fechar();
     throw erro;
   }
 
-  const repository = new PagamentoRepository(pool);
+  const repository = new PagamentoRepository(contextoBanco);
   const relatorioService = new RelatorioService(repository);
-  const aplicacao = criarAplicacao(relatorioService);
-  const servidor = await new Promise((resolver, rejeitar) => {
-    const aoFalhar = (erro) => rejeitar(erro);
+  const relatorioController = new RelatorioController(relatorioService);
+  const aplicacao = criarAplicacao(relatorioController);
+  const servidor = await new Promise<Server>((resolver, rejeitar) => {
+    const aoFalhar = (erro: Error) => rejeitar(erro);
     const instancia = aplicacao.listen(porta, () => {
       instancia.off("error", aoFalhar);
       resolver(instancia);
     });
     instancia.once("error", aoFalhar);
   }).catch(async (erro) => {
-    await pool.close();
+    await contextoBanco.fechar();
     throw erro;
   });
 
@@ -35,7 +38,7 @@ async function iniciarServidor() {
 
   let encerrando = false;
 
-  function encerrarServidor(sinal) {
+  function encerrarServidor(sinal: string): void {
     if (encerrando) {
       return;
     }
@@ -45,7 +48,7 @@ async function iniciarServidor() {
 
     servidor.close(async (erro) => {
       try {
-        await pool.close();
+        await contextoBanco.fechar();
         console.log("Pool de conexões encerrado.");
       } finally {
         if (erro) {
@@ -59,7 +62,7 @@ async function iniciarServidor() {
   process.once("SIGINT", () => encerrarServidor("SIGINT"));
   process.once("SIGTERM", () => encerrarServidor("SIGTERM"));
 
-  return { servidor, pool };
+  return { servidor, contextoBanco };
 }
 
 if (require.main === module) {
@@ -68,5 +71,3 @@ if (require.main === module) {
     process.exitCode = 1;
   });
 }
-
-module.exports = { iniciarServidor };
